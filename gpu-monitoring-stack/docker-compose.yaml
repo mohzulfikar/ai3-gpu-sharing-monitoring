@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  pushgateway:
+    image: prom/pushgateway
+    ports:
+      - 9081:9091
+    pid: "host"
+    restart: always
+
+  gpu-exporter:
+    build: gpu-exporter
+    pid: "host"
+    depends_on:
+      - pushgateway
+    restart: always
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:2.3.2-2.6.3-ubuntu20.04
+    pid: "host"
+    ports:
+      - 9480:9400
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  prometheus:
+    image: prom/prometheus
+    pid: "host"
+    depends_on:
+      - dcgm-exporter
+      - gpu-exporter
+    ports:
+      - 9080:9090
+    volumes:
+      - /tmp/prometheus:/prometheus
+      - ./prometheus:/etc/prometheus
+    restart: always
+
+  grafana:
+    image: grafana/grafana-enterprise
+    depends_on:
+      - prometheus
+    ports:
+      - 3080:3000
+    pid: "host"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: always
+
+volumes:
+  grafana-storage:
+    external: true
