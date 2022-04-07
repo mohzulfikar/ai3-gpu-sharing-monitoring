@@ -47,3 +47,9 @@ Prometheus [config](prometheus/prometheus.yml) can be customized to add alerting
 ## Import Grafana Dashboard
 
 You can import either the [custom dashboard](gpu-custom-dashboard.json) or use the [default dashboard](https://grafana.com/grafana/dashboards/12239) for DCGM Exporter (you need to setup additional panel to list the GPU process exposed by `gpu-exporter`)
+
+## Dashboard Overview
+
+Dashboard View
+
+![gpu-monitoring-sample](gpu-monitoring-sample.png)
